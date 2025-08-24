@@ -15,7 +15,14 @@ def count_ja_String(text: str, characters_max: int, *, characters_min: int = 0) 
     characters_min: lower limit of characters (int)(optional, default is characters_max-10)
     """
     if characters_min == 0:
-        characters_min = characters_max - 10
+        # デフォルト: 上限-10。ただし下限は0未満にしない
+        characters_min = max(0, characters_max - 10)
+    # 境界チェック（任意の追加防御）
+    if characters_min < 0:
+        characters_min = 0
+    if characters_min > characters_max:
+        # エラーにする代わりに上限へ丸める（仕様に応じてエラー返却でも可）
+        characters_min = characters_max
     try:
         count = len("".join(text.split()))
         is_exceed = count > characters_max
@@ -23,7 +30,7 @@ def count_ja_String(text: str, characters_max: int, *, characters_min: int = 0) 
         message = (
             f"文字数が上限({characters_max})を超えています。現在の文字数: {count}"
             if is_exceed
-            else f"文字数が上限内({characters_min})です。現在の文字数: {count}"
+            else f"文字数が上限内({characters_max})です。現在の文字数: {count}"
         )
         message += (
             f"\n文字数が下限({characters_min})を下回っています。"
@@ -35,8 +42,16 @@ def count_ja_String(text: str, characters_max: int, *, characters_min: int = 0) 
             "message": message,
             "count": count,
             "is_exceed": is_exceed,
-            "is_below": is_below
+            "is_below": is_below,
         }
         return str(result)
     except Exception as e:
-        
+        return str(
+            {
+                "success": False,
+                "message": f"文字数のカウント中にエラーが発生しました: {e}",
+                "count": 0,
+                "is_exceed": False,
+                "is_below": False,
+            }
+        )
