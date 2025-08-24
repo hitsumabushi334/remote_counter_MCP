@@ -7,7 +7,7 @@ mcp_server = MCPLambdaHandler(name="remote_counter_MCP", version="1.0.0")
 
 
 @mcp_server.tool()
-def count_ja_String(text: str, characters_max: int, *, characters_min: int = 0) -> str:
+def count_ja_String(text: str, characters_max: int, *, characters_min: int = 0) -> dict:
     """
     Counts the number of characters in a given Japanese sentence.
     text: string to count(str)(required)
@@ -37,21 +37,19 @@ def count_ja_String(text: str, characters_max: int, *, characters_min: int = 0) 
             if is_below
             else f"\n文字数が下限({characters_min})を上回っています。"
         )
-        result = {
+        payload = {
             "success": True,
             "message": message,
             "count": count,
             "is_exceed": is_exceed,
             "is_below": is_below,
         }
-        return str(result)
+        return payload
     except Exception as e:
-        return str(
-            {
-                "success": False,
-                "message": f"文字数のカウント中にエラーが発生しました: {e}",
-                "count": 0,
-                "is_exceed": False,
-                "is_below": False,
-            }
-        )
+        return {
+            "success": False,
+            "message": f"文字数のカウント中にエラーが発生しました",
+            "count": 0,
+            "is_exceed": False,
+            "is_below": False,
+        }
